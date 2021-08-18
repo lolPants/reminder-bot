@@ -7,6 +7,9 @@
   "author": "Jack Baron <jackmbaron@gmail.com>",
   "license": "MIT",
   "private": true,
+  "engines": {
+    "node": ">=16.6.0"
+  },
   "scripts": {
     "clean": "rimraf build",
     "compile": "tsc",
@@ -24,6 +27,7 @@
     "xo": "^0.44.0"
   },
   "dependencies": {
+    "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "source-map-support": "^0.5.19",
     "tslib": "^2.3.1"
