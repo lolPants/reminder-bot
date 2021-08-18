@@ -3,6 +3,7 @@ import 'source-map-support/register.js'
 import { field } from '@lolpants/jogger'
 import { Client, Intents } from 'discord.js'
 import type { CommandParameters } from './commands/index.js'
+import { remindme } from './commands/remindme.js'
 import { PREFIX, TOKEN } from './env/index.js'
 import { exitHook } from './exit.js'
 import { parseInteractionID } from './interactions/index.js'
@@ -38,6 +39,12 @@ client.on('messageCreate', async message => {
   }
 
   switch (command.toLowerCase()) {
+    case 'remindme':
+    case 'reminder':
+    case 'addreminder':
+      await remindme(parameters)
+      break
+
     default: {
       logger.debug(
         field('event', 'messageCreate'),
