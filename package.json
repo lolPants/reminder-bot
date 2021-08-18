@@ -1,0 +1,10 @@
+{
+  "name": "reminder-bot",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./build/index.js",
+  "repository": "git@github.com:lolPants/reminder-bot.git",
+  "author": "Jack Baron <jackmbaron@gmail.com>",
+  "license": "MIT",
+  "private": true
+}
