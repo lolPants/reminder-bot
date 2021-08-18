@@ -5,6 +5,8 @@ import { Client, Intents } from 'discord.js'
 import type { CommandParameters } from './commands/index.js'
 import { PREFIX, TOKEN } from './env/index.js'
 import { exitHook } from './exit.js'
+import { parseInteractionID } from './interactions/index.js'
+import type { ButtonParameters } from './interactions/index.js'
 import { errorField, flush, logger } from './logger.js'
 
 const client = new Client({
@@ -41,6 +43,32 @@ client.on('messageCreate', async message => {
         field('event', 'messageCreate'),
         field('command', command.toLowerCase()),
         field('error', 'unhandled command')
+      )
+
+      break
+    }
+  }
+})
+
+client.on('interactionCreate', async button => {
+  if (!button.isButton()) return
+
+  const interaction = parseInteractionID(button.customId)
+  const { key, components } = interaction
+
+  const parameters: ButtonParameters = {
+    button,
+    client,
+    key,
+    components,
+  }
+
+  switch (key) {
+    default: {
+      logger.error(
+        field('event', 'interactionCreate'),
+        field('interaction', interaction.key),
+        field('error', 'unhandled interaction')
       )
 
       break
