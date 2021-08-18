@@ -7,11 +7,7 @@ import { exitHook } from './exit.js'
 import { errorField, flush, logger } from './logger.js'
 
 const client = new Client({
-  intents: [
-    Intents.FLAGS.GUILDS,
-    Intents.FLAGS.GUILD_MESSAGES,
-    Intents.FLAGS.GUILD_MEMBERS,
-  ],
+  intents: [Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES],
 })
 
 client.on('ready', () => {
