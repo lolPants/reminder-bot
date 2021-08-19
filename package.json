@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@lolpants/jogger": "^0.5.0",
+    "@lolpants/timeparser": "^2.0.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",
     "ioredis": "^4.27.8",

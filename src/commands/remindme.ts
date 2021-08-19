@@ -1,3 +1,4 @@
+import { parse } from '@lolpants/timeparser'
 import type { CommandHandler } from './index.js'
 
 const units = new Set([
@@ -10,7 +11,10 @@ const units = new Set([
   'year',
 ])
 
-export const remindme: CommandHandler = async ({ content: messageContent }) => {
+export const remindme: CommandHandler = async ({
+  message,
+  content: messageContent,
+}) => {
   const resolveArgs: () => [time: string, message: string] = () => {
     const [first, second, ...rest] = messageContent.split(' ')
 
@@ -28,6 +32,15 @@ export const remindme: CommandHandler = async ({ content: messageContent }) => {
     return [first, content]
   }
 
-  const [time, content] = resolveArgs()
+  const [rawTime, rawContent] = resolveArgs()
+  const time = parse(rawTime)
+  const content = rawContent === '' ? '*No message given.*' : rawContent
+
+  if (time === undefined) {
+    await message.reply(`Invalid time string \`${rawTime}\``)
+    return
+  }
+
   // TODO
+  console.log({ time, content })
 }
