@@ -1,6 +1,10 @@
 import { parse } from '@lolpants/timeparser'
 import { DiscordAPIError } from 'discord.js'
-import { addReminder, removeReminder } from '../reminders.js'
+import {
+  addReminder,
+  removeReminder,
+  setReminderMessage,
+} from '../reminders.js'
 import type { CommandHandler } from './index.js'
 
 const units = new Set([
@@ -46,11 +50,15 @@ export const remindme: CommandHandler = async ({
   }
 
   const triggerAt = new Date(Date.now() + time)
-  const id = await addReminder(message, content, triggerAt)
+  const id = await addReminder(message.author, content, triggerAt)
 
   try {
     // TODO
-    await message.author.send({ content: `reminder ID: \`${id}\`` })
+    const reminderMessage = await message.author.send({
+      content: `reminder ID: \`${id}\``,
+    })
+
+    await setReminderMessage(id, reminderMessage)
   } catch (error: unknown) {
     if (error instanceof DiscordAPIError && error.code === 50_007) {
       await removeReminder(id)
