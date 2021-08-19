@@ -63,12 +63,16 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
 
   const now = Date.now()
   const mapped = rawReminders.map(entry => {
-    if (typeof entry.id !== 'string') return undefined
-    if (typeof entry.userID !== 'string') return undefined
-    if (typeof entry.content !== 'string') return undefined
-    if (typeof entry.triggerAt !== 'string') return undefined
+    const userID = entry[Field.UserID]
+    const content = entry[Field.Content]
+    const triggerAtRaw = entry[Field.TriggerAt]
 
-    const triggerTime = Number.parseInt(entry.triggerAt, 10)
+    if (typeof entry.id !== 'string') return undefined
+    if (typeof userID !== 'string') return undefined
+    if (typeof content !== 'string') return undefined
+    if (typeof triggerAtRaw !== 'string') return undefined
+
+    const triggerTime = Number.parseInt(triggerAtRaw, 10)
     if (Number.isNaN(triggerTime)) return undefined
     const triggerAt = new Date(triggerTime)
 
@@ -79,9 +83,9 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
 
     const reminder: Reminder = {
       id: entry.id,
-      userID: entry.userID,
+      userID,
       messageID: undefined,
-      content: entry.content,
+      content,
     }
 
     return reminder
