@@ -18,14 +18,16 @@ export const remindme: CommandHandler = async ({
   const resolveArgs: () => [time: string, message: string] = () => {
     const [first, second, ...rest] = messageContent.split(' ')
 
-    const lower = second.toLowerCase()
-    const unitCheck = lower.endsWith('s') ? lower.slice(0, -1) : lower
+    if (second !== undefined) {
+      const lower = second.toLowerCase()
+      const unitCheck = lower.endsWith('s') ? lower.slice(0, -1) : lower
 
-    if (units.has(unitCheck)) {
-      const time = [first, second].join(' ')
-      const content = rest.join(' ')
+      if (units.has(unitCheck)) {
+        const time = [first, second].join(' ')
+        const content = rest.join(' ')
 
-      return [time, content]
+        return [time, content]
+      }
     }
 
     const content = [second, ...rest].join(' ')
