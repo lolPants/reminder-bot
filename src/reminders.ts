@@ -1,5 +1,5 @@
 import type { Message } from 'discord.js'
-import { redis } from './redis'
+import { redis } from './redis/index.js'
 
 const STREAM_KEY = 'reminders'
 const enum Field {
