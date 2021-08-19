@@ -10,6 +10,7 @@ import { parseInteractionID } from './interactions/index.js'
 import type { ButtonParameters } from './interactions/index.js'
 import { errorField, flush, logger } from './logger.js'
 import { awaitRedis } from './redis/index.js'
+import { checkReminders } from './reminders.js'
 
 const client = new Client({
   intents: [
@@ -19,11 +20,15 @@ const client = new Client({
   ],
 })
 
-client.on('ready', () => {
+client.on('ready', async () => {
   logger.info(
     field('action', 'ready'),
     field('user', client.user?.tag ?? 'Unknown')
   )
+
+  const reminders = await checkReminders()
+  // TODO
+  console.log(reminders)
 })
 
 client.on('messageCreate', async message => {
@@ -88,7 +93,17 @@ client.on('interactionCreate', async button => {
   }
 })
 
+const loop = setInterval(async () => {
+  // Wait for client to be ready
+  if (client.readyAt === null) return
+
+  const reminders = await checkReminders()
+  // TODO
+  console.log(reminders)
+}, 1000 * 10)
+
 exitHook(async (exit, error) => {
+  clearInterval(loop)
   client.destroy()
 
   if (error) {
