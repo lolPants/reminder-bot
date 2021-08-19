@@ -30,7 +30,13 @@ export const addReminder: (
   return id
 }
 
+export const removeReminder: (id: string) => Promise<boolean> = async id => {
+  const count = await redis.xdel(STREAM_KEY, id)
+  return count !== 0
+}
+
 interface Reminder {
+  id: string
   userID: string
   messageID: string
   content: string
