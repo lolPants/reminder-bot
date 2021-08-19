@@ -1,3 +1,4 @@
+import chunk from 'chunk'
 import type { Message, User } from 'discord.js'
 import { redis } from './redis/index.js'
 
@@ -49,13 +50,48 @@ interface Reminder {
   userID: string
   messageID: string | undefined
   content: string
-  triggerAt: Date
 }
 
 export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
   const entries = await redis.xrange(STREAM_KEY, '-', '+')
-  console.log(entries)
+  const rawReminders = entries.map(([key, rawValues]) => {
+    const entries = [['id', key], ...chunk(rawValues, 2)]
+    const values = Object.fromEntries(entries) as Record<string, unknown>
 
-  // TODO
-  throw new Error('not implemented')
+    return values
+  })
+
+  const now = Date.now()
+  const mapped = rawReminders.map(entry => {
+    if (typeof entry.id !== 'string') return undefined
+    if (typeof entry.userID !== 'string') return undefined
+    if (typeof entry.content !== 'string') return undefined
+    if (typeof entry.triggerAt !== 'string') return undefined
+
+    const triggerTime = Number.parseInt(entry.triggerAt, 10)
+    if (Number.isNaN(triggerTime)) return undefined
+    const triggerAt = new Date(triggerTime)
+
+    // Filter out invalid dates
+    if (Number.isNaN(triggerAt.getTime())) return undefined
+    // Filter out reminders before current time
+    if (triggerAt.getTime() > now) return undefined
+
+    const reminder: Reminder = {
+      id: entry.id,
+      userID: entry.userID,
+      messageID: undefined,
+      content: entry.content,
+    }
+
+    return reminder
+  })
+
+  const filtered = mapped.filter((x): x is Reminder => x !== undefined)
+  const jobs = filtered.map(async reminder => ({
+    ...reminder,
+    messageID: (await redis.hget(MESSAGES_KEY, reminder.id)) ?? undefined,
+  }))
+
+  return Promise.all(jobs)
 }
