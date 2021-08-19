@@ -9,6 +9,7 @@ import { exitHook } from './exit.js'
 import { parseInteractionID } from './interactions/index.js'
 import type { ButtonParameters } from './interactions/index.js'
 import { errorField, flush, logger } from './logger.js'
+import { awaitRedis } from './redis/index.js'
 
 const client = new Client({
   intents: [Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES],
@@ -96,4 +97,4 @@ exitHook(async (exit, error) => {
   exit()
 })
 
-void client.login(TOKEN)
+void awaitRedis().then(async () => client.login(TOKEN))
