@@ -10,6 +10,7 @@ const enum Field {
   UserID = 'userID',
   Content = 'content',
   TriggerAt = 'triggerAt',
+  SetAt = 'setAt',
 }
 
 export const addReminder: (
@@ -25,7 +26,9 @@ export const addReminder: (
     Field.Content,
     content,
     Field.TriggerAt,
-    triggerAt.getTime()
+    triggerAt.getTime(),
+    Field.SetAt,
+    Date.now()
   )
 
   return id
@@ -50,6 +53,7 @@ interface Reminder {
   userID: string
   messageID: string | undefined
   content: string
+  setAt: Date
 }
 
 export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
@@ -66,15 +70,21 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
     const userID = entry[Field.UserID]
     const content = entry[Field.Content]
     const triggerAtRaw = entry[Field.TriggerAt]
+    const setAtRaw = entry[Field.SetAt]
 
     if (typeof entry.id !== 'string') return undefined
     if (typeof userID !== 'string') return undefined
     if (typeof content !== 'string') return undefined
     if (typeof triggerAtRaw !== 'string') return undefined
+    if (typeof setAtRaw !== 'string') return undefined
 
     const triggerTime = Number.parseInt(triggerAtRaw, 10)
     if (Number.isNaN(triggerTime)) return undefined
     const triggerAt = new Date(triggerTime)
+
+    const setTime = Number.parseInt(setAtRaw, 10)
+    if (Number.isNaN(setTime)) return undefined
+    const setAt = new Date(setTime)
 
     // Filter out invalid dates
     if (Number.isNaN(triggerAt.getTime())) return undefined
@@ -86,6 +96,7 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
       userID,
       messageID: undefined,
       content,
+      setAt,
     }
 
     return reminder
