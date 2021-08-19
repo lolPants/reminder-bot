@@ -12,7 +12,11 @@ import { errorField, flush, logger } from './logger.js'
 import { awaitRedis } from './redis/index.js'
 
 const client = new Client({
-  intents: [Intents.FLAGS.DIRECT_MESSAGES, Intents.FLAGS.GUILD_MESSAGES],
+  intents: [
+    Intents.FLAGS.DIRECT_MESSAGES,
+    Intents.FLAGS.GUILDS,
+    Intents.FLAGS.GUILD_MESSAGES,
+  ],
 })
 
 client.on('ready', () => {
