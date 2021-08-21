@@ -41,6 +41,15 @@ export const setReminderMessage: (
   await redis.hset(MESSAGES_KEY, id, message.id)
 }
 
+export const getReminder: (id: string) => Promise<Reminder | undefined> =
+  async id => {
+    const entries = await redis.xrange(STREAM_KEY, id, id)
+    const parsed = await parseReminders(entries, false)
+
+    if (parsed.length === 0) return undefined
+    return parsed[0]
+  }
+
 export const removeReminder: (id: string) => Promise<boolean> = async id => {
   await redis.hdel(MESSAGES_KEY, id)
   const count = await redis.xdel(STREAM_KEY, id)
@@ -56,8 +65,10 @@ interface Reminder {
   setAt: Date
 }
 
-export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
-  const entries = await redis.xrange(STREAM_KEY, '-', '+')
+const parseReminders: (
+  xrange: Array<[id: string, fields: string[]]>,
+  filterUpcoming?: boolean
+) => Promise<Reminder[]> = async (entries, filterUpcoming = false) => {
   const rawReminders = entries.map(([key, rawValues]) => {
     const entries = [['id', key], ...chunk(rawValues, 2)]
     const values = Object.fromEntries(entries) as Record<string, unknown>
@@ -89,7 +100,7 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
     // Filter out invalid dates
     if (Number.isNaN(triggerAt.getTime())) return undefined
     // Filter out reminders before current time
-    if (triggerAt.getTime() > now) return undefined
+    if (filterUpcoming && triggerAt.getTime() > now) return undefined
 
     const reminder: Reminder = {
       id: entry.id,
@@ -109,4 +120,9 @@ export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
   }))
 
   return Promise.all(jobs)
+}
+
+export const checkReminders: () => Promise<readonly Reminder[]> = async () => {
+  const entries = await redis.xrange(STREAM_KEY, '-', '+')
+  return parseReminders(entries, true)
 }
