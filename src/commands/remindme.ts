@@ -1,6 +1,6 @@
 import { parse } from '@lolpants/timeparser'
-import { DiscordAPIError, MessageActionRow, MessageButton } from 'discord.js'
-import { interactionID } from '../interactions/index.js'
+import { DiscordAPIError } from 'discord.js'
+import { generateReminderButtons } from '../interactions/reminder/utils.js'
 import {
   addReminder,
   removeReminder,
@@ -54,13 +54,7 @@ export const remindme: CommandHandler = async ({
   const id = await addReminder(message.author, content, triggerAt)
 
   try {
-    const cancelButton = new MessageButton()
-      .setLabel('Cancel')
-      .setCustomId(interactionID('reminder', 'cancel', id))
-      .setStyle('DANGER')
-
-    const buttons = new MessageActionRow().addComponents(cancelButton)
-
+    const buttons = generateReminderButtons({ cancelData: [id] })
     const reminderMessage = await message.author.send({
       content: `reminder ID: \`${id}\``,
       components: [buttons],
