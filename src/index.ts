@@ -8,6 +8,7 @@ import { PREFIX, TOKEN } from './env/index.js'
 import { exitHook } from './exit.js'
 import { parseInteractionID } from './interactions/index.js'
 import type { ButtonParameters } from './interactions/index.js'
+import { reminder__cancel } from './interactions/reminder__cancel.js'
 import { errorField, flush, logger } from './logger.js'
 import { awaitRedis } from './redis/index.js'
 import { checkReminders } from './reminders.js'
@@ -81,6 +82,10 @@ client.on('interactionCreate', async button => {
   }
 
   switch (key) {
+    case 'reminder@cancel':
+      await reminder__cancel(parameters)
+      break
+
     default: {
       logger.error(
         field('event', 'interactionCreate'),
